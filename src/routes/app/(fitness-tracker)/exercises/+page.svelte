@@ -21,6 +21,9 @@
 		if (exerciseQuery.data) {
 			exerciseState.allExercises = exerciseQuery.data;
 		}
+		if (!isModalOpen) {
+			exerciseState.resetSelected();
+		}
 	});
 </script>
 

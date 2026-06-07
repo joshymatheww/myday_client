@@ -39,6 +39,9 @@
 		if (exerciseState.canDelete) {
 			isDeleteModalOpen = true;
 		}
+		if (exerciseState.canEdit) {
+			isModalOpen = true;
+		}
 	});
 </script>
 

@@ -1,11 +1,7 @@
-// src/routes/app/exercises/exercise-state.svelte.ts
 import { getContext, setContext } from 'svelte';
 import type { Exercise } from '$lib/types/exercise';
 
 export class ExerciseState {
-	// A function that returns the latest exercises array dynamically
-	//private getInitialExercises: () => Exercise[];
-
 	isFilterVisible = $state(false);
 	searchQuery = $state('');
 	selectedCategory = $state('');
@@ -14,8 +10,8 @@ export class ExerciseState {
 	allExercises = $state<Exercise[]>([]);
 	selectedExercise = $state<Exercise | null>(null);
 	canDelete = $state(false);
+	canEdit = $state(false);
 
-	// 2. The Filtering Pipeline updates automatically when allExercises changes
 	filteredExercises = $derived.by(() => {
 		return this.allExercises.filter((exercise) => {
 			const matchesSearch = exercise.name.toLowerCase().includes(this.searchQuery.toLowerCase());
@@ -55,15 +51,20 @@ export class ExerciseState {
 		this.canDelete = true;
 	}
 
+	editExercise(exercise: Exercise) {
+		this.selectedExercise = exercise;
+		this.canEdit = true;
+	}
+
 	resetSelected() {
 		this.selectedExercise = null;
 		this.canDelete = false;
+		this.canEdit = false;
 	}
 }
 
 const EXERCISE_KEY = Symbol('EXERCISE_STATE');
 
-// Update parameter type to expect a closure/getter function
 export function setExerciseState() {
 	return setContext(EXERCISE_KEY, new ExerciseState());
 }

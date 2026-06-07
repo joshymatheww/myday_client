@@ -4,10 +4,10 @@
 	let { label, name, options, defaultValue, selectedValue }: OptionButtonsProps = $props();
 
 	let control = $derived.by(() => {
-		if (defaultValue) {
-			return defaultValue;
-		} else if (selectedValue) {
+		if (selectedValue) {
 			return selectedValue;
+		} else if (defaultValue) {
+			return defaultValue;
 		} else {
 			('');
 		}

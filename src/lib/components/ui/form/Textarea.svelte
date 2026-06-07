@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { TextAreaProps } from '$lib/types/form';
 
-	let { id, label, name, error, placeholder, required = false }: TextAreaProps = $props();
-	$inspect(error);
+	let { id, label, name, error, placeholder, required = false, value }: TextAreaProps = $props();
 </script>
 
 <div class="space-y-1.5">
@@ -16,6 +15,7 @@
 		{placeholder}
 		{required}
 		class="w-full resize-none rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-sm text-white focus:border-sky-500/50 focus:outline-none"
+		{value}
 	></textarea>
 
 	{#if error}

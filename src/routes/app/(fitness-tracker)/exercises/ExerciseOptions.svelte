@@ -12,10 +12,12 @@
 	let { selectedExercise }: Props = $props();
 
 	const handleDelete = () => exerciseState.deleteExercise(selectedExercise);
+
+	const handleEdit = () => exerciseState.editExercise(selectedExercise);
 </script>
 
 <button
-	onclick={() => {}}
+	onclick={handleEdit}
 	class="rounded-lg p-1.5 text-neutral-400 transition-all hover:bg-neutral-800 hover:text-white"
 >
 	<Icon icon="mdi:pencil-outline" class="h-4 w-4" />

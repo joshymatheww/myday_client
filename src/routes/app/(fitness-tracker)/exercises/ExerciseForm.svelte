@@ -5,6 +5,7 @@
 	import Select from '$lib/components/ui/form/Select.svelte';
 	import Textarea from '$lib/components/ui/form/Textarea.svelte';
 	import CloseButton from '$lib/components/ui/modals/CloseButton.svelte';
+	import { getExerciseState } from '$lib/contexts/exercise-state.svelte';
 	import { getToastState } from '$lib/contexts/toast-state.svelte';
 	import { ApiError } from '$lib/services/api';
 	import { saveExercise } from '$lib/services/execises';
@@ -24,6 +25,7 @@
 
 	const toastState = getToastState();
 	const queryClient = useQueryClient();
+	const exerciseState = getExerciseState();
 
 	let { isModalOpen = $bindable(false) }: Props = $props();
 
@@ -31,7 +33,7 @@
 	let isSubmitting = $state(false);
 	let formErrors = $state<Record<string, string>>({});
 
-	let action = $derived.by(() => (editingId ? '?/edit' : '?/save'));
+	let action = $derived.by(() => (exerciseState.selectedExercise ? '?/edit' : '?/save'));
 
 	const exerciseMutation = createMutation(() => ({
 		mutationFn: ({ name, category, equipement, difficulty, description }: Exercise) =>
@@ -80,7 +82,7 @@
 <form class="flex-1 space-y-5" method="POST" {action} onsubmit={handleSubmit}>
 	<div class="flex items-center justify-between border-b border-neutral-800 pb-4">
 		<h2 class="text-lg font-bold text-white">
-			{editingId ? 'Modify Exercise' : 'Register New Exercise'}
+			{exerciseState.selectedExercise ? 'Modify Exercise' : 'Register New Exercise'}
 		</h2>
 		<CloseButton onClick={() => (isModalOpen = false)} />
 	</div>
@@ -91,6 +93,7 @@
 		label="Exercise Title"
 		placeholder="e.g., Incline Dumbbell Press"
 		error={getFieldError(formErrors, 'name') ?? ''}
+		value={exerciseState.selectedExercise ? exerciseState.selectedExercise.name : ''}
 	/>
 
 	<div class="grid grid-cols-2 gap-4">
@@ -99,6 +102,7 @@
 			id="category"
 			label="Target Category"
 			options={OPTIONS.exercise_categories}
+			value={exerciseState.selectedExercise ? exerciseState.selectedExercise.category : ''}
 		/>
 
 		<Select
@@ -106,6 +110,7 @@
 			id="equipement"
 			label="Equipement Type"
 			options={OPTIONS.exercise_equipements}
+			value={exerciseState.selectedExercise ? exerciseState.selectedExercise.equipement : ''}
 		/>
 	</div>
 
@@ -114,6 +119,9 @@
 		name="difficulty"
 		options={OPTIONS.exercise_difficulties}
 		defaultValue="easy"
+		selectedValue={exerciseState.selectedExercise
+			? exerciseState.selectedExercise.difficulty
+			: 'easy'}
 	/>
 
 	<Textarea
@@ -122,6 +130,7 @@
 		name="description"
 		placeholder="Keep shoulder blades retracted, lower down to a 90-degree angle..."
 		error={getFieldError(formErrors, 'description') ?? ''}
+		value={exerciseState.selectedExercise ? exerciseState.selectedExercise.description : ''}
 	/>
 
 	<div class="mt-auto flex items-center gap-3 border-t border-neutral-800 pt-6">
