@@ -38,3 +38,19 @@ export const deleteExercise = async (exerciseId: string) => {
 	});
 	return 'Sucessfully deleted the exercise details';
 };
+
+/**
+ *
+ * @param exercise
+ * @returns Exercise
+ */
+export const updateExercise = async (exercise: Exercise): Promise<ApiResponse<Exercise>> => {
+	const res = await apiFetch(`/exercises/${exercise.id}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(exercise)
+	});
+	return res.json();
+};

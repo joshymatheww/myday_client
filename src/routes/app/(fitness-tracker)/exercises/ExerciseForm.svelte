@@ -5,55 +5,46 @@
 	import Select from '$lib/components/ui/form/Select.svelte';
 	import Textarea from '$lib/components/ui/form/Textarea.svelte';
 	import CloseButton from '$lib/components/ui/modals/CloseButton.svelte';
+	import { useCreateExercise } from '$lib/composables/exercises/use-create-exercise.svelte';
+	import { useUpdateExercise } from '$lib/composables/exercises/use-update-exercise.svelte';
 	import { getExerciseState } from '$lib/contexts/exercise-state.svelte';
-	import { getToastState } from '$lib/contexts/toast-state.svelte';
-	import { ApiError } from '$lib/services/api';
-	import { saveExercise } from '$lib/services/execises';
+
 	import type {
-		Exercise,
 		ExerciseCategory,
 		ExerciseDifficulty,
 		ExerciseEquipement
 	} from '$lib/types/exercise';
-	import { getFieldError, getFieldErrors } from '$lib/utils/functions';
+	import { getFieldError } from '$lib/utils/functions';
 	import { OPTIONS } from '$lib/utils/options';
-	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {
 		isModalOpen: boolean;
 	};
 
-	const toastState = getToastState();
-	const queryClient = useQueryClient();
 	const exerciseState = getExerciseState();
 
 	let { isModalOpen = $bindable(false) }: Props = $props();
 
-	let editingId = $state<string | null>(null);
 	let isSubmitting = $state(false);
 	let formErrors = $state<Record<string, string>>({});
 
 	let action = $derived.by(() => (exerciseState.selectedExercise ? '?/edit' : '?/save'));
 
-	const exerciseMutation = createMutation(() => ({
-		mutationFn: ({ name, category, equipement, difficulty, description }: Exercise) =>
-			saveExercise({ name, category, equipement, difficulty, description }),
+	const saveMutation = useCreateExercise({
+		onError: (err) => (formErrors = err),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['exercises'] });
 			isSubmitting = false;
 			isModalOpen = false;
-			toastState.addToast('Success', 'Successfully saved exercise details.', 'success');
-		},
-		onError: (error) => {
-			isSubmitting = false;
-			if (error instanceof ApiError) {
-				if (error.status === 400) {
-					formErrors = getFieldErrors(error);
-				}
-			}
-			toastState.addToast('Error', error.message, 'error');
 		}
-	}));
+	});
+
+	const updateMutation = useUpdateExercise({
+		onError: (err) => (formErrors = err),
+		onSuccess: () => {
+			isSubmitting = false;
+			isModalOpen = false;
+		}
+	});
 
 	const handleSubmit = (e: SubmitEvent) => {
 		e.preventDefault();
@@ -67,7 +58,18 @@
 		const difficulty = formData.get('difficulty') as ExerciseDifficulty;
 		const description = formData.get('description') as string;
 
-		exerciseMutation.mutate({ name, category, equipement, difficulty, description });
+		if (exerciseState.selectedExercise) {
+			updateMutation.mutate({
+				name,
+				category,
+				equipement,
+				difficulty,
+				description,
+				id: exerciseState.selectedExercise.id
+			});
+		} else {
+			saveMutation.mutate({ name, category, equipement, difficulty, description });
+		}
 	};
 
 	$effect(() => {
@@ -138,7 +140,7 @@
 
 		<Button
 			type="submit"
-			text={editingId ? 'Save Changes' : 'Confirm Entry'}
+			text={exerciseState.selectedExercise ? 'Save Changes' : 'Confirm Entry'}
 			disabled={isSubmitting}
 			isLoading={isSubmitting}
 		/>

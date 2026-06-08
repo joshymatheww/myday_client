@@ -1,6 +1,6 @@
 <script lang="ts">
 	import DeleteModal from '$lib/components/ui/modals/DeleteModal.svelte';
-	import { useDeleteExercise } from '$lib/composables/use-delete-exercise.svelte';
+	import { useDeleteExercise } from '$lib/composables/exercises/use-delete-exercise.svelte';
 	import { getExerciseState } from '$lib/contexts/exercise-state.svelte';
 	import Icon from '@iconify/svelte';
 	import ExerciseCards from './ExerciseCards.svelte';
